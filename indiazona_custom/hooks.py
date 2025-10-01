@@ -43,7 +43,7 @@ app_license = "mit"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
+doctype_js = {"CRM Lead" : "public/js/create_lead_custom.js"}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -138,10 +138,9 @@ app_license = "mit"
 # Hook on document methods and events
 
 # doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
+# 	"CRM Lead": {
+# 		# "after_insert": "indiazona_custom.utils.permission_acess.update_status_log_owner_on_refresh",
+#         # "after_save":  "indiazona_custom.utils.permission_acess.update_status_log_owner"
 # 	}
 # }
 
@@ -241,4 +240,3 @@ app_license = "mit"
 # default_log_clearing_doctypes = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
-
