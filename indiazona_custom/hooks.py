@@ -43,7 +43,10 @@ app_license = "mit"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-doctype_js = {"CRM Lead" : "public/js/create_lead_custom.js"}
+doctype_js = {
+    "CRM Lead" : "public/js/create_lead_custom.js",
+    "CRM Task" : "public/js/crm_task.js"
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -140,7 +143,10 @@ doctype_js = {"CRM Lead" : "public/js/create_lead_custom.js"}
 doc_events = {
 	"CRM Lead": {
 		"after_insert": "indiazona_custom.utils.auto_task.create_task_for_lead",
-	}
+	},
+    "CRM Task": {
+        "on_update": "indiazona_custom.utils.auto_task.handle_task_status_change"
+    }
 }
 
 # Scheduled Tasks
@@ -150,14 +156,14 @@ scheduler_events = {
 	# "all": [
 	# 	"indiazona_custom.utils.auto_task.check_all_pending_retry_tasks"
 	# ],
-	# "daily": [
-	# 	"indiazona_custom.utils.auto_task.check_all_pending_retry_tasks"
-	# ],
-    "cron": {
-        "*/2 * * * *": [
-            "indiazona_custom.utils.auto_task.check_all_pending_retry_tasks"
-        ]
-    }
+	"daily": [
+		"indiazona_custom.utils.auto_task.check_all_pending_retry_tasks"
+	],
+    # "cron": {
+    #     "*/2 * * * *": [
+    #         "indiazona_custom.utils.auto_task.check_all_pending_retry_tasks"
+    #     ]
+    # }
 	# "hourly": [
 	# 	"indiazona_custom.tasks.hourly"``
 	# ],
