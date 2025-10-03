@@ -154,6 +154,11 @@ scheduler_events = {
 	"daily": [
 		"indiazona_custom.utils.auto_task.check_all_pending_retry_tasks"
 	],
+    "cron": {
+        "*/5 * * * *": [
+            "indiazona_custom.utils.auto_task.check_all_pending_retry_tasks"
+        ]
+    }
 	# "hourly": [
 	# 	"indiazona_custom.tasks.hourly"
 	# ],
