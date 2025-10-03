@@ -63,18 +63,14 @@ def create_task_for_lead(doc, method=None):
 def check_all_pending_retry_tasks():
     """
     Daily scheduled job to check all tasks needing retry
-    This runs automatically every day via scheduler
     """
     try:
-        # Find all tasks that:
-        # 1. Have status "Call Not Connected"
-        # 2. Due date has passed
-        # 3. Haven't reached max attempts
+        # Get tasks WITHOUT attempt number filter - let create_retry_task handle it
         tasks = frappe.get_all("CRM Task",
             filters={
                 "status": "Call Not Connected",
                 "due_date": ["<=", nowdate()],
-                "custom_attempt_number": ["<", 10]
+                "custom_retry_created": 0
             },
             fields=["name", "custom_lead_name", "custom_attempt_number", "assigned_to", "custom_max_attempts"]
         )
@@ -84,14 +80,18 @@ def check_all_pending_retry_tasks():
             title="Daily Retry Check Started"
         )
         
+        # Process all tasks - let create_retry_task decide what to do
         for task_data in tasks:
             try:
+                attempt_num = int(task_data.custom_attempt_number) if task_data.custom_attempt_number else 1
+                max_attempts = int(task_data.custom_max_attempts) if task_data.get("custom_max_attempts") else 10
+                
                 create_retry_task(
                     task_data.custom_lead_name,
                     task_data.name,
-                    task_data.custom_attempt_number,
+                    attempt_num,
                     task_data.assigned_to,
-                    task_data.get("custom_max_attempts", 10)
+                    max_attempts
                 )
             except Exception as e:
                 frappe.log_error(
@@ -106,14 +106,26 @@ def check_all_pending_retry_tasks():
             title="Daily Retry Check Error"
         )
 
-
 def create_retry_task(lead_name, previous_task_name, attempt_number, assigned_to, max_attempts=10):
     """
     Create a retry task for a lead
     """
     try:
+
+        attempt_number = int(attempt_number) if isinstance(attempt_number, str) else attempt_number
+        max_attempts = int(max_attempts) if isinstance(max_attempts, str) else max_attempts
+
+
         # Get the previous task to verify status
         previous_task = frappe.get_doc("CRM Task", previous_task_name)
+        
+
+        if previous_task.get("custom_retry_created"):
+            frappe.log_error(
+                message=f"Task {previous_task_name} already processed, skipping",
+                title="Task Already Processed"
+            )
+            return
         
         # Double check status is still "Call Not Connected"
         if previous_task.status != "Call Not Connected":
@@ -123,8 +135,16 @@ def create_retry_task(lead_name, previous_task_name, attempt_number, assigned_to
             )
             return
         
+        
+        
+
         # Check if we've reached max attempts
         if attempt_number >= max_attempts:
+            # Mark as processed first
+            previous_task.custom_retry_created = 1
+            previous_task.save(ignore_permissions=True)
+
+
             # Update lead status to Inactive/Dropped
             lead_doc = frappe.get_doc("CRM Lead", lead_name)
             lead_doc.status = "Inactive / Dropped"
@@ -154,15 +174,19 @@ def create_retry_task(lead_name, previous_task_name, attempt_number, assigned_to
             "reference_docname": lead_name,
             "start_date": nowdate(),
             "due_date": add_days(nowdate(), 2),  # Due in 2 days
-            "custom_attempt_number": new_attempt,
-            "custom_max_attempts": max_attempts,
+            "custom_attempt_number":str(new_attempt),
+            "custom_max_attempts": str(max_attempts),
             "custom_retry_interval_days": 2,
             "custom_lead_name": lead_name,
-            "custom_previous_task": previous_task_name
+            "custom_previous_task": previous_task_name,
+            "custom_retry_created": 0  # Not yet processed
         })
         
         retry_task.insert(ignore_permissions=True)
         
+        previous_task.custom_retry_created = 1
+        previous_task.save(ignore_permissions=True)
+
         # Create assignment
         if assigned_to:
             assignment = frappe.get_doc({
