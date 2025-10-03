@@ -137,33 +137,33 @@ doctype_js = {"CRM Lead" : "public/js/create_lead_custom.js"}
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"CRM Lead": {
-# 		# "after_insert": "indiazona_custom.utils.permission_acess.update_status_log_owner_on_refresh",
-#         # "after_save":  "indiazona_custom.utils.permission_acess.update_status_log_owner"
-# 	}
-# }
+doc_events = {
+	"CRM Lead": {
+		"after_insert": "indiazona_custom.utils.auto_task.create_task_for_lead",
+        # "after_save":  "indiazona_custom.utils.permission_acess.update_status_log_owner"
+	}
+}
 
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"indiazona_custom.tasks.all"
-# 	],
-# 	"daily": [
-# 		"indiazona_custom.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"indiazona_custom.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"indiazona_custom.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"indiazona_custom.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	# "all": [
+	# 	"indiazona_custom.tasks.all"
+	# ],
+	"daily": [
+		"indiazona_custom.utils.auto_task.check_and_create_retry_task"
+	],
+	# "hourly": [
+	# 	"indiazona_custom.tasks.hourly"
+	# ],
+	# "weekly": [
+	# 	"indiazona_custom.tasks.weekly"
+	# ],
+	# "monthly": [
+	# 	"indiazona_custom.tasks.monthly"
+	# ],
+}
 
 # Testing
 # -------
