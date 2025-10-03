@@ -18,7 +18,8 @@ def create_task_for_lead(doc, method=None):
             "reference_doctype": "CRM Lead",
             "reference_docname": doc.name,
             "start_date": nowdate(),
-            "due_date": add_days(nowdate(), 2),  # Due in 2 days
+            # "due_date": add_days(nowdate(), 2),  # Due in 2 days
+            "due_date": add_days(nowdate(),2),  # Due in 2 days
             "custom_attempt_number": 1,
             "custom_max_attempts": 10,
             "custom_retry_interval_days": 2,
@@ -59,7 +60,7 @@ def create_task_for_lead(doc, method=None):
         )
         frappe.throw(_("Failed to create task for lead"))
 
-
+@frappe.whitelist()  
 def check_all_pending_retry_tasks():
     """
     Daily scheduled job to check all tasks needing retry
@@ -69,7 +70,7 @@ def check_all_pending_retry_tasks():
         tasks = frappe.get_all("CRM Task",
             filters={
                 "status": "Call Not Connected",
-                "due_date": ["<=", nowdate()],
+                "due_date": [">=", nowdate()],
                 "custom_retry_created": 0
             },
             fields=["name", "custom_lead_name", "custom_attempt_number", "assigned_to", "custom_max_attempts"]

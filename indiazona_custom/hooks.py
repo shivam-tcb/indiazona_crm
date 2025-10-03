@@ -140,7 +140,6 @@ doctype_js = {"CRM Lead" : "public/js/create_lead_custom.js"}
 doc_events = {
 	"CRM Lead": {
 		"after_insert": "indiazona_custom.utils.auto_task.create_task_for_lead",
-        # "after_save":  "indiazona_custom.utils.permission_acess.update_status_log_owner"
 	}
 }
 
@@ -149,18 +148,18 @@ doc_events = {
 
 scheduler_events = {
 	# "all": [
-	# 	"indiazona_custom.tasks.all"
+	# 	"indiazona_custom.utils.auto_task.check_all_pending_retry_tasks"
 	# ],
-	"daily": [
-		"indiazona_custom.utils.auto_task.check_all_pending_retry_tasks"
-	],
+	# "daily": [
+	# 	"indiazona_custom.utils.auto_task.check_all_pending_retry_tasks"
+	# ],
     "cron": {
-        "*/5 * * * *": [
+        "*/2 * * * *": [
             "indiazona_custom.utils.auto_task.check_all_pending_retry_tasks"
         ]
     }
 	# "hourly": [
-	# 	"indiazona_custom.tasks.hourly"
+	# 	"indiazona_custom.tasks.hourly"``
 	# ],
 	# "weekly": [
 	# 	"indiazona_custom.tasks.weekly"
